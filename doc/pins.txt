@@ -1,0 +1,26 @@
+Pin | Description
+----+----------------------------------
+D4  | LCD Keypad Shield
+D5~ | http://www.dfrobot.com/wiki/index.php?title=Arduino_LCD_KeyPad_Shield_(SKU:_DFR0009)
+D6~ | http://www.dfrobot.com/wiki/images/a/a7/LCDKeypad_Shield_SCH.png
+D7  | LCD D4-D7 
+D8  | LCD RS
+D9~ | LCD Enable
+D10~| Backlit control
+A0  | Keypad 
+    |
+D0  | Available? see J5 on schematics!
+D1  | Available?
+D2  | Available?
+D3~ | Available?
+D11~| Available?
+D12 | Available?
+D13 | Available?
+    |
+ x  | Left slider endswitch - interrupt
+ y  | Right slider endswitch - interrupt
+ z  | Slider motor - PWM
+D3~ | Pan - PWM
+D11~| Tilt - PWM
+
+ 

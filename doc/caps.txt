@@ -1,0 +1,46 @@
+
+slider-panner-tilter-zoomer
+	// assuming DC motor
+	can slideX 
+		// first direction decreases position value
+		// second direction increases position value
+		directions left right  
+		absolute-position unavailable
+		endswitches left right
+		speed 1% 100%
+		
+	// assuming stepper motor
+	can slideY  
+		// first direction decreases position value
+		// second direction increases position value
+		directions backward forward
+		absolute-position available
+		endswitches forward backward
+
+	// assuming DC motor
+	can pan
+		// first direction decreases position value
+		// second direction increases position value
+		directions left right
+		absolute-position unavailable
+		endswitches none
+
+	// assuming DC motor
+	can tilt
+		// first direction decreases position value
+		// second direction increases position value
+		directions down up 
+		absolute-position unavailable
+		endswitches none
+
+	// assuming DC motor
+	can zoom
+		// first direction decreases position value
+		// second direction increases position value
+		directions closer wider
+		absolute-position unavailable
+		endswitches none
+
+
+
+

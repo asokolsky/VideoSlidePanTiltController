@@ -1,0 +1,11 @@
+-GUI: show remaining time for the selected command, not the very first one.
+
+-Handle interrupts to process carriage hitting endswitches
+
+-Add slider hardware and software interaction with it
+
+-Add interaction with panner/tilter hardware
+
+
++GUI - when an active channel is selected Left/Right adjusts speed, Up/Down time
++Build a menu to choose channel to interact with, handle start/stop/ speedChange on every channel
