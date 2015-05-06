@@ -1,4 +1,5 @@
 #include "Lcd1602KeypadShield.h"
+#include "Trace.h"
 #include "CommandInterpreter.h"
 
 Lcd1602KeypadShield::Lcd1602KeypadShield() : 

@@ -1,19 +1,3 @@
-
-/**
- * DEBUG utils
- */
-#define DEBUG 1
-
-#ifdef DEBUG
-  #define DEBUG_PRINT(x)    Serial.print(x)
-  #define DEBUG_PRINTDEC(x) Serial.print(x, DEC)
-  #define DEBUG_PRINTLN(x)  Serial.println(x)
-#else
-  #define DEBUG_PRINT(x)
-  #define DEBUG_PRINTDEC(x)
-  #define DEBUG_PRINTLN(x)
-#endif 
-
 #include "TB6612FNG.h"
 
 /** 
@@ -39,6 +23,13 @@ const char cmdRest  = 10;
  * either by time expiration or by exception such as endswitch
  */
 const char cmdWaitForCompletion  = 11;
+
+/**
+ * Loop commands
+ */
+const char cmdBeginLoop  = 21;
+const char cmdEndLoop  = 22;
+ 
 /** not really a command but the marker of the end of commands */
 const char cmdNone  = -1;
 
@@ -46,33 +37,64 @@ const char cmdNone  = -1;
 struct Command
 {
   char m_command;            // one of cmdXX
-  char m_speed;             //  carries information on direction and speed in %: -100%..100%
+  char m_speed;              // also carries information on direction and speed in %: -100%..100%
   unsigned long m_uDuration; // in milli seconds  
 };
 
 /**
  * (abstract) channel for slide, pan or tilt or zoom
+ *  uses a motor
+ * implements trapezoidal speed profile on the motor 
  */
-struct CommandInterpreterChannel
+class CommandInterpreterChannel
 {
+  /** try to update speed in this many ms.  Should be similar to main loop tick.  */
+  const unsigned long ulSpeedUpdateTick = 100;
+  /** update speed by this much  */
+  const byte bSpeedUpdateStep = 5;
+  
+protected:
   /** 
    * If a command is being executed on the channel this is when it will end in ms 
    * otherwise - 0
    */
   unsigned long m_ulNext;
-  char m_cSpeed;
+  /** 
+   * trapezoidal speed profile support
+   * next speed update should be at this time - check it in tick(); 
+   */
+  unsigned long m_ulNextSpeedUpdate = 0;
+  /** setpoint - where we want for the ultimate motor speed to be */
+  char m_cSpeed = 0;
+  /** where we are at a moment */
+  char m_cCurrentSpeed = 0;
+
+  DCMotor m_motor;
+
+public:
+  CommandInterpreterChannel(byte pinCW, byte pinCCW, byte pinPWM);
   
-  virtual void beginCommands();
-  /** may communicate with hardware */
-  virtual void beginCommand(char cSpeed, unsigned long ulDuration, unsigned long now) = 0;
-  /** may communicate with hardware */
-  virtual boolean endCommand() = 0;
-  virtual void endCommands();
-
-  void saveCommand(char cSpeed, unsigned long ulDuration, unsigned long now);
-  void adjustCommandSpeed(char iSpeedAdjustment);
-  void adjustCommandDuration(char iSecs);
-
+  unsigned long getNext() {
+    return m_ulNext;
+  }
+  char getSpeed() {
+    return m_cSpeed;
+  }
+  char getCurrentSpeed() {
+    return m_cCurrentSpeed;
+  }
+  
+  void beginCommands();
+  void endCommands() {}
+  
+  /** 
+   * may communicate with hardware 
+   */
+  virtual void beginCommand(char cSpeed, unsigned long ulDuration, unsigned long now);
+  /** 
+   * may communicate with hardware 
+   */
+  virtual boolean endCommand();
   /** 
    * mark command as ready to be completed
    * actual hw communication is done in endCommand();
@@ -83,57 +105,51 @@ struct CommandInterpreterChannel
   }
   
   /**
+   * Did we work long enough or did we hit an endswitch?
+   */
+  virtual boolean isReadyToEndCommand(unsigned long now);
+  /**
+   * Handle a GUI request
+   */
+  void adjustCommandSpeed(char iSpeedAdjustment);
+  /**
+   * Handle a GUI request
+   */
+  void adjustCommandDuration(char iSecs);
+  /**
    * command is being executed by hardware
    */
   boolean isBusy() {
     return (m_ulNext > 0);
   }
-  boolean isReadyToEndCommand(unsigned long now) {
-    return (m_ulNext > 0) && (now >= m_ulNext);
-  }
+  /** 
+   * allows for trapezoidal velocity profile implementation 
+   */
+  void tick(unsigned long now);
+  
+private:
+  /**
+   * implement a trapezoidal velocity profile
+   * communicate with hardware
+   */
+  void doSpeedStep(unsigned long now);
 };
 
 class SlideCommandInterpreterChannel :  public CommandInterpreterChannel 
 {
-  DCMotor m_motor;
-
+  byte m_bEndSwitchCounter;
 public:  
   SlideCommandInterpreterChannel(byte pinCW, byte pinCCW, byte pinPWM) : 
-    m_motor(pinCW, pinCCW, pinPWM) {
-    m_motor.setSpeedRegulation(100);
+    CommandInterpreterChannel(pinCW, pinCCW, pinPWM), m_bEndSwitchCounter(0)
+  {
   }
+ 
+  void beginCommand(char cSpeed, unsigned long ulDuration, unsigned long now);
+  boolean endCommand();
+  boolean isReadyToEndCommand(unsigned long now);
   
-  void beginCommand(char cSpeed, unsigned long ulDuration, unsigned long now);
-  boolean endCommand();
 };
 
-class PanCommandInterpreterChannel :  public CommandInterpreterChannel 
-{
-  DCMotor m_motor;
-
-public:  
-  PanCommandInterpreterChannel(byte pinCW, byte pinCCW, byte pinPWM) : 
-    m_motor(pinCW, pinCCW, pinPWM) {
-    m_motor.setSpeedRegulation(100);
-  }
-
-  void beginCommand(char cSpeed, unsigned long ulDuration, unsigned long now);
-  boolean endCommand();
-};
-
-class TiltCommandInterpreterChannel :  public CommandInterpreterChannel 
-{
-  DCMotor m_motor;
-
-public:  
-  TiltCommandInterpreterChannel(byte pinCW, byte pinCCW, byte pinPWM) : 
-    m_motor(pinCW, pinCCW, pinPWM) {
-    m_motor.setSpeedRegulation(100);
-  }
-
-  void beginCommand(char cSpeed, unsigned long ulDuration, unsigned long now);
-  boolean endCommand();
-};
 
 /**
  * Main Interface Class
@@ -182,20 +198,19 @@ private:
    */
   void stopCommand(char cCmd);
   
-  void beginWaitForCompletion() {
-    m_bWaitingForCompletion = true;
-  }
-  void endWaitForCompletion() {
-    m_bWaitingForCompletion = false;
-  }
+  /** cmdWaitForCompletion command handler */
+  void beginWaitForCompletion();
+  void endWaitForCompletion();
   
-  void beginRest(unsigned long ulDuration, unsigned long now) {
-    m_ulNext = now + ulDuration;
-    updateDisplay(now);
-  }
-  void endRest() {
-    m_ulNext = 0;
-  }
+  /** cmdRest command handler */
+  void beginRest(unsigned long ulDuration, unsigned long now);
+  void endRest();
+
+  /** cmdBeginLoop command handler */
+  void beginLoop(Command *p);
+  /** cmdEndLoop command handler */
+  Command *endLoop();
+  
   boolean isResting() {
     return (m_ulNext > 0);
   }
@@ -207,12 +222,19 @@ private:
   }
   /** get the total # of busy channels */
   char getBusyChannels();
-  word getBusySeconds(unsigned long now);
+  unsigned getBusySeconds(unsigned long now);
   
+  /** command currently being executed */
   Command *m_pCommand;
+  /** Loop command to jump back to when we encounter EndLoop */
+  Command *m_pBeginLoopCommand;
+  /** array of interpreter channels such as slide/pan/tilt/zoom */
   CommandInterpreterChannel *m_channels[cmdMax];
-  unsigned long m_ulNext; // to execute Rest
-  unsigned long m_ulLastDisplayUpdate; // when the display was last updated
+  /** when to execute next command */
+  unsigned long m_ulNext; 
+  /** when the display was last updated */
+  unsigned long m_ulLastDisplayUpdate;
+  /** wea re waiting for command(s) to be completed. */
   boolean m_bWaitingForCompletion;
 };
 

@@ -1,11 +1,23 @@
--GUI: show remaining time for the selected command, not the very first one.
 
--Handle interrupts to process carriage hitting endswitches
+
+-Add STOP command. 
+ Usage scenario: slide left slow, pan left slow, hit endswitch, stop all.
 
 -Add slider hardware and software interaction with it
 
--Add interaction with panner/tilter hardware
+-Test interaction with panner/tilter hardware
 
 
-+GUI - when an active channel is selected Left/Right adjusts speed, Up/Down time
++Add (unconditional) LOOP command. 
+ Usage scenario: 
+   BeginLoop
+     slide left slow until endswitch is hit
+     rest 5sec
+     slide right slow until endswitch is hit
+     rest 5sec
+   EndLoop     
++Support trapezoidal velocity profiles to reduce jerks on the camera.
++Handle interrupts to process carriage hitting endswitches
++GUI: show remaining time for the selected command, not the very first one.
++GUI: when an active channel is selected Left/Right adjusts speed, Up/Down time
 +Build a menu to choose channel to interact with, handle start/stop/ speedChange on every channel
