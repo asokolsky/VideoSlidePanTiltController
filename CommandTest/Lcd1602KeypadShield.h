@@ -11,8 +11,8 @@
 #ifndef Lcd1602KeypadShield_h
 #define Lcd1602KeypadShield_h
 
-#include "Arduino.h"
-#include <LiquidCrystal.h>
+#include <Arduino.h>
+#include "LiquidCrystal.h"
 
 /** define some values for button (key) scan codes */
 const char VK_NONE = 0;

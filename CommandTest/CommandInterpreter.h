@@ -73,6 +73,7 @@ protected:
 
 public:
   CommandInterpreterChannel(byte pinCW, byte pinCCW, byte pinPWM);
+
   
   unsigned long getNext() {
     return m_ulNext;
@@ -84,6 +85,9 @@ public:
     return m_cCurrentSpeed;
   }
   
+  void begin() {
+    m_motor.begin();
+  }
   void beginCommands();
   void endCommands() {}
   
@@ -165,10 +169,11 @@ public:
     byte pinPanCW, byte pinPanCCW, byte pinPanPWM,
     byte pinTiltCW, byte pinTiltCCW, byte pinTiltPWM);    
   ~CommandInterpreter() {}
+  
 	
-  /** external API of this class */
+  /** external APIs of this class */
+  void begin();
   void beginRun(char cmd, char iSpeed, unsigned long ulDuration);
-
   void beginRun(Command *p);
   bool continueRun(unsigned long now);
   void endRun();

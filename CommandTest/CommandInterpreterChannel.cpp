@@ -9,7 +9,7 @@ extern volatile byte g_byteSliderEndSwitch;
 CommandInterpreterChannel::CommandInterpreterChannel(byte pinCW, byte pinCCW, byte pinPWM) : 
   m_motor(pinCW, pinCCW, pinPWM) 
 {
-  m_motor.setSpeedRegulation(100);
+  //m_motor.setSpeedRegulation(100);
 }
 
 void CommandInterpreterChannel::beginCommands() {

@@ -1,4 +1,3 @@
-#include <SoftwareSerial.h>
 #include <LiquidCrystal.h>
 #include "Lcd1602KeypadShield.h"
 #include "CommandInterpreter.h"
@@ -14,8 +13,8 @@ Lcd1602KeypadShield g_lcd;
 volatile byte g_byteSliderEndSwitch = 0;
 
 CommandInterpreter g_ci(
- //26, 27, 3, // slider IN1, IN2, PWM
- 26, 27, 2, // slider IN1, IN2, PWM
+ 26, 27, 3, // slider IN1, IN2, PWM
+ //26, 27, 2, // slider IN1, IN2, PWM
  22, 23, 11, // pan IN1, IN2, PWM
  24, 25, 12); // tilt IN1, IN2, PWM
 
@@ -60,11 +59,15 @@ void setup()
   }
   
   // internal pull-up resistor
-  digitalWrite (3, HIGH);
+  //digitalWrite (3, HIGH);
+  digitalWrite (2, HIGH);
   // interrupt 1 is on pin 3
-  attachInterrupt(1, onSliderEndSwitch, FALLING);
+  //attachInterrupt(1, onSliderEndSwitch, FALLING);
+  // interrupt 0 is on pin 3
+  attachInterrupt(0, onSliderEndSwitch, FALLING);
 
   g_lcd.begin();
+  g_ci.begin();
   g_ci.beginRun(cmds);
 }
 

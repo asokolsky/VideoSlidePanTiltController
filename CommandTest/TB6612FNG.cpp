@@ -1,9 +1,6 @@
 #include "TB6612FNG.h"
 
-DCMotor::DCMotor(byte pinCW, byte pinCCW, byte pinPWM) :
-  m_pinCW(pinCW), m_pinCCW(pinCCW), m_pinPWM(pinPWM), 
-  m_bGoing(false), m_bDirectionCW(true), m_speed(255), m_speedRegulation(255)
-{ 
+void DCMotor::begin() {
   pinMode(m_pinCW, OUTPUT);
   pinMode(m_pinCCW, OUTPUT);
   pinMode(m_pinPWM, OUTPUT);
@@ -31,15 +28,15 @@ void DCMotor::shortBreak() {
 }
 
 
-void DCMotor::setSpeedRegulation(byte speedRegulation) {
+/*void DCMotor::setSpeedRegulation(byte speedRegulation) {
   m_speedRegulation = speedRegulation;
   if(m_bGoing)
     go();
-}
+}*/
 
 void DCMotor::setSpeed(boolean bCW, byte speed) {
   m_bDirectionCW = bCW;
-  m_speed = map(speed, 0, 255, 0, m_speedRegulation);
+  m_speed = map(speed, 0, 255, 0, 100 /*m_speedRegulation*/);
   go();
 }
 

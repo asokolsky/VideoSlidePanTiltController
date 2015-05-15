@@ -19,11 +19,17 @@ private:
   boolean m_bGoing;
   boolean m_bDirectionCW;
   byte m_speed;
-  byte m_speedRegulation;
+  //byte m_speedRegulation = 255;
 
 public:
   /** IN1, IN2, PWM */
-  DCMotor(byte pinCW, byte pinCCW, byte pinPWM);
+  DCMotor(byte pinCW, byte pinCCW, byte pinPWM) :
+    m_pinCW(pinCW), m_pinCCW(pinCCW), m_pinPWM(pinPWM), 
+    m_bGoing(false), m_bDirectionCW(true), m_speed(255)
+  { 
+  }
+  
+  void begin();
    
   void go();
   void stop();
@@ -31,11 +37,11 @@ public:
    
   void setSpeed(boolean bCW, byte speed);
    
-  void setSpeedRegulation(byte speedRegulation);
+  //void setSpeedRegulation(byte speedRegulation);
    
-  byte getSpeedRegulation() {
+  /*byte getSpeedRegulation() {
     return m_speedRegulation;
-  }
+  }*/
   boolean isGoing() {
     return m_bGoing;
   }

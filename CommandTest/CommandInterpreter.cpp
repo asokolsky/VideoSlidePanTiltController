@@ -1,4 +1,3 @@
-#include <SoftwareSerial.h>
 #include "Trace.h"
 #include "Lcd1602KeypadShield.h"
 #include "CommandInterpreter.h"
@@ -19,6 +18,16 @@ CommandInterpreter::CommandInterpreter(
   m_channels[cmdTilt] = new /*Tilt*/ CommandInterpreterChannel(pinTiltCW, pinTiltCCW, pinTiltPWM);
 }
 
+/** 
+ * external APIs 
+ */
+void CommandInterpreter::begin() {
+  // begin for all channels.....
+  for(char i = 0; i < sizeof(m_channels)/sizeof(m_channels[0]); i++)
+    if(m_channels[i] != 0)
+      m_channels[i]->begin();
+}
+
 //
 // buffer for a sequence of one command
 //
@@ -27,7 +36,6 @@ static Command cmds[] = {
   {cmdNone,  0, 0}
 };
 
-/** external API */
 void CommandInterpreter::beginRun(char cmd, char cSpeed, unsigned long ulDuration) {
   DEBUG_PRINTLN("CommandInterpreter::beginRun");
   cmds[0].m_command = cmd;

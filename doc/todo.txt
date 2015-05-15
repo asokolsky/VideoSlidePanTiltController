@@ -1,12 +1,13 @@
+-Add ability to read commands from a serial port
 
-
--Add STOP command. 
+-Add STOPALL or WAITTILENDSWITCH command. 
  Usage scenario: slide left slow, pan left slow, hit endswitch, stop all.
 
 -Add slider hardware and software interaction with it
 
 -Test interaction with panner/tilter hardware
 
+Version 0.1
 
 +Add (unconditional) LOOP command. 
  Usage scenario: 
