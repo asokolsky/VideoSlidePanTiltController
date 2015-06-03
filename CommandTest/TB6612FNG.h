@@ -9,17 +9,9 @@
  */
  
 #include <arduino.h>
+#include "Trace.h"
 
 class DCMotor {
-private:
-  byte m_pinCW;  // a.k.a. IN1
-  byte m_pinCCW; // a.k.a. IN2
-  byte m_pinPWM;
-   
-  boolean m_bGoing;
-  boolean m_bDirectionCW;
-  byte m_speed;
-  //byte m_speedRegulation = 255;
 
 public:
   /** IN1, IN2, PWM */
@@ -35,17 +27,21 @@ public:
   void stop();
   void shortBreak();
    
+  /** speed is in 0%...100% */
   void setSpeed(boolean bCW, byte speed);
    
-  //void setSpeedRegulation(byte speedRegulation);
-   
-  /*byte getSpeedRegulation() {
-    return m_speedRegulation;
-  }*/
   boolean isGoing() {
     return m_bGoing;
   }
    
+private:
+  byte m_pinCW;  // a.k.a. IN1
+  byte m_pinCCW; // a.k.a. IN2
+  byte m_pinPWM;
+   
+  boolean m_bGoing;
+  boolean m_bDirectionCW;
+  byte m_speed;
 };
 
 

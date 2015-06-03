@@ -128,9 +128,19 @@ static unsigned speedUp(unsigned uCurrentSpeed, unsigned uSpeed, unsigned uSpeed
  * given that in m_ulNext-now we need to be at 0
  */
 void CommandInterpreterChannel::doSpeedStep(unsigned long now) { 
+  /*DEBUG_PRINT("doSpeedStep  m_cCurrentSpeed=");
+  DEBUG_PRINTDEC(m_cCurrentSpeed);
+  DEBUG_PRINT("  m_cSpeed=");
+  DEBUG_PRINTDEC(m_cSpeed);
+  DEBUG_PRINTLN("");*/
+
   // say when next time
   m_ulNextSpeedUpdate = now + ulSpeedUpdateTick;
-
+  
+  boolean bCW = (m_cCurrentSpeed == 0) 
+    ? (m_cSpeed > 0) 
+    : (m_cCurrentSpeed > 0);
+  
   unsigned uCurrentSpeed = abs(m_cCurrentSpeed);
   unsigned uSpeed = abs(m_cSpeed);
   if(uSpeed < uCurrentSpeed) 
@@ -154,18 +164,18 @@ void CommandInterpreterChannel::doSpeedStep(unsigned long now) {
     // speed up!
     uCurrentSpeed = speedUp(uCurrentSpeed, uSpeed, bSpeedUpdateStep);
   }
-  m_cCurrentSpeed = (m_cCurrentSpeed > 0) ? uCurrentSpeed : -uCurrentSpeed;
+  m_cCurrentSpeed = bCW ? uCurrentSpeed : -uCurrentSpeed;
 
 
   // work with the hardware here!
   // this will start the motor spinning!
-  DEBUG_PRINT("m_motor.setSpeed ");
-  DEBUG_PRINTDEC(uCurrentSpeed);
+  /*DEBUG_PRINT("m_motor.setSpeed ");
+  DEBUG_PRINTDEC(m_cCurrentSpeed);
   DEBUG_PRINT(" now=");
   DEBUG_PRINTDEC(now);
-  DEBUG_PRINTLN("");
+  DEBUG_PRINTLN("");*/
 
-  m_motor.setSpeed(m_cCurrentSpeed >= 0, uCurrentSpeed);
+  m_motor.setSpeed(bCW, uCurrentSpeed);
 }
 
 

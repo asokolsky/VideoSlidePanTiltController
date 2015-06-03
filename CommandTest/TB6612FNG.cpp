@@ -7,6 +7,12 @@ void DCMotor::begin() {
 }
 
 void DCMotor::go() {
+  DEBUG_PRINT("DCMotor::go m_bDirectionCW=");
+  DEBUG_PRINTDEC(m_bDirectionCW);
+  DEBUG_PRINT(" m_speed=");
+  DEBUG_PRINTDEC(m_speed);
+  DEBUG_PRINTLN("");
+
   digitalWrite(m_pinCW,  m_bDirectionCW ? HIGH : LOW);
   digitalWrite(m_pinCCW, m_bDirectionCW ? LOW : HIGH);
   analogWrite(m_pinPWM, m_speed);
@@ -35,8 +41,14 @@ void DCMotor::shortBreak() {
 }*/
 
 void DCMotor::setSpeed(boolean bCW, byte speed) {
+  DEBUG_PRINT("DCMotor::setSpeed bCW=");
+  DEBUG_PRINTDEC(bCW);
+  DEBUG_PRINT(" speed=");
+  DEBUG_PRINTDEC(speed);
+  DEBUG_PRINTLN("");
+  
   m_bDirectionCW = bCW;
-  m_speed = map(speed, 0, 255, 0, 100 /*m_speedRegulation*/);
+  m_speed = map(speed, 0, 100, 0, 255);
   go();
 }
 
