@@ -40,6 +40,31 @@ boolean CommandInterpreterChannel::endCommand() {
   m_ulNext = m_ulNextSpeedUpdate = 0;
 }
 
+/** 
+ * may communicate with hardware 
+ */
+void CommandInterpreterChannel::pauseCommand() {
+  if(!isBusy())
+    return;
+  m_motor.stop();
+}
+
+/** 
+ * may communicate with hardware 
+ */
+void CommandInterpreterChannel::resumeCommand(unsigned long ulPauseDuration) {
+  if(!isBusy())
+    return;
+  if(m_ulNext != 0)
+    m_ulNext += ulPauseDuration;
+  if(m_ulNextSpeedUpdate != 0)
+    m_ulNextSpeedUpdate += ulPauseDuration;
+
+  //m_motor.setSpeed((m_cCurrentSpeed > 0), abs(m_cCurrentSpeed));
+  m_motor.go();
+}
+
+
 /**
  * by default we are concerned about command expiration only, 
  * no end-switches are in the picture

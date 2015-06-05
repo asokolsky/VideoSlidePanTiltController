@@ -206,9 +206,20 @@ void Lcd1602KeypadShield::onLeftRightKeyDown(char iSpeed) {
   DEBUG_PRINTLN("");
   if(m_cSelectedChannel == cmdNone)
     return;
-  if((m_cSelectedChannel == cmdRest) || (m_cSelectedChannel == cmdWaitForCompletion)){
-    if(g_ci.isRunning())
+  if((m_cSelectedChannel == cmdRest) || (m_cSelectedChannel == cmdWaitForCompletion)) {
+    if(!g_ci.isRunning())
+      return;
+    if(iSpeed < 0) {
+      // left key - STOP
       g_ci.stopRun();
+    } else {
+      // right key - PAUSE/RESUME
+      if(g_ci.isPaused()) {
+        g_ci.resumeRun();
+      } else {
+        g_ci.pauseRun();
+      }
+    }
     return;
   }
   if(!g_ci.isRunning()) {

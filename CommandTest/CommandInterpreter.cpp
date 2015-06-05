@@ -10,8 +10,7 @@ extern Lcd1602KeypadShield g_lcd;
 CommandInterpreter::CommandInterpreter(
   byte pinSlideCW, byte pinSlideCCW, byte pinSlidePWM,
   byte pinPanCW, byte pinPanCCW, byte pinPanPWM,
-  byte pinTiltCW, byte pinTiltCCW, byte pinTiltPWM) : 
-  m_pCommand(0), m_pBeginLoopCommand(0), m_ulNext(0), m_bWaitingForCompletion(false)
+  byte pinTiltCW, byte pinTiltCCW, byte pinTiltPWM)
 {
   m_channels[cmdSlide] = new SlideCommandInterpreterChannel(pinSlideCW, pinSlideCCW, pinSlidePWM);
   m_channels[cmdPan] = new /*Pan*/ CommandInterpreterChannel(pinPanCW, pinPanCCW, pinPanPWM);
@@ -74,7 +73,7 @@ void CommandInterpreter::stopRun() {
   DEBUG_PRINTLN("CommandInterpreter::stopRun");
   m_bWaitingForCompletion = false;
   m_pCommand = 0;
-  m_ulNext = 0;
+  m_ulNext = m_ulPaused = 0;
   
   for(char i = 0; i < sizeof(m_channels)/sizeof(m_channels[0]); i++)
     if((m_channels[i] != 0) && m_channels[i]->isBusy())
@@ -84,6 +83,33 @@ void CommandInterpreter::stopRun() {
   g_lcd.setCursor(0, 0);
   g_lcd.print("Stopped!");
 }
+
+
+/** suspend the run, can resume */
+void CommandInterpreter::pauseRun() {
+  if(m_ulPaused != 0)
+    return;
+  m_ulPaused = millis();
+  for(char i = 0; i < sizeof(m_channels)/sizeof(m_channels[0]); i++)
+    if((m_channels[i] != 0) && m_channels[i]->isBusy())
+      m_channels[i]->pauseCommand();
+  updateDisplay(m_ulPaused);
+}
+
+/** resume the run */
+void CommandInterpreter::resumeRun() {
+  if(m_ulPaused == 0)
+    return;
+  unsigned long now = millis();
+  unsigned long ulPauseDuration = now - m_ulPaused;
+  for(char i = 0; i < sizeof(m_channels)/sizeof(m_channels[0]); i++)
+    if((m_channels[i] != 0) && m_channels[i]->isBusy())
+      m_channels[i]->resumeCommand(ulPauseDuration);
+  m_ulNext += ulPauseDuration;
+  m_ulPaused = 0;
+  updateDisplay(now);
+}
+
 
 /** 
  * Times tick, update interpreter status
@@ -101,6 +127,8 @@ bool CommandInterpreter::continueRun(unsigned long now)
     DEBUG_PRINTLN("CommandInterpreter::continueRun m_pCommand==0");
     return false;
   }
+  if(isPaused())
+    return false;
   // update the display at least once a sec
   bool bUpdateDisplay = ((now - m_ulLastDisplayUpdate) > 900);
   //

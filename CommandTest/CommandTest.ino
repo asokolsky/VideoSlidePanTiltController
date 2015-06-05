@@ -1,6 +1,8 @@
 #include <LiquidCrystal.h>
 #include "Lcd1602KeypadShield.h"
 #include "CommandInterpreter.h"
+#include "SerialCommand.h"
+
 
 /**
  * Globals: the LCD screen/keypad  object
@@ -45,6 +47,8 @@ Command cmds[] = {
   {cmdNone,  0, 0}
 };
 
+MySerialCommand g_sci;
+
 static void onSliderEndSwitch()
 {
   g_byteSliderEndSwitch++;
@@ -66,6 +70,7 @@ void setup()
   // interrupt 0 is on pin 3
   attachInterrupt(0, onSliderEndSwitch, FALLING);
 
+  g_sci.begin();
   g_lcd.begin();
   g_ci.begin();
   g_ci.beginRun(cmds);
@@ -86,8 +91,13 @@ void loop()
       g_ci.endRun();
     }
   }
-  if(g_lcd.getAndDispatchKey(now))
-    ;  
-  delay(100);
+  if(g_lcd.getAndDispatchKey(now)) {
+    ;
+  } else if(g_sci.available()) {
+    do {
+      g_sci.readAndDispatch();
+    } while(g_sci.available());
+  }
+  delay(50);
 }
 

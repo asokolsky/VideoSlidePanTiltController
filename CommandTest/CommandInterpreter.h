@@ -99,6 +99,15 @@ public:
    * may communicate with hardware 
    */
   virtual boolean endCommand();
+  
+  /** 
+   * may communicate with hardware 
+   */
+  void pauseCommand();
+  /** 
+   * may communicate with hardware 
+   */
+  void resumeCommand(unsigned long ulPauseDuration);
   /** 
    * mark command as ready to be completed
    * actual hw communication is done in endCommand();
@@ -119,7 +128,7 @@ public:
   /**
    * Handle a GUI request
    */
-  void adjustCommandDuration(char iSecs);
+  void adjustCommandDuration(char iChangeSecs);
   /**
    * command is being executed by hardware
    */
@@ -177,31 +186,45 @@ public:
   void beginRun(Command *p);
   bool continueRun(unsigned long now);
   void endRun();
-
+  
   /** stop processing commands */
   void stopRun();
+
+  /** suspend the run, can resume */
+  void pauseRun();
+  /** resume the run */
+  void resumeRun();
+
   
+  /** is this command interpreter interpreting commands? */
   boolean isRunning() {
     return (m_pCommand != 0);
   }
+  /** is this command interpreter paused? */
+  boolean isPaused() {
+    return (m_ulPaused != 0);
+  }
+  /** is this channel busy? */
   boolean isBusy(char cChannel);
   
 
   /** external API of this class */
   void beginCommand(char cmd, char cSpeed, unsigned long ulDuration);
+  /** adjust speed */
   void adjustCommandSpeed(char cmd, char cSpeedAdjustment);
   /** Duration adjustment in seconds */
   void adjustCommandDuration(char cmd, int iDurationAdjustment); 
 
   void updateDisplay(unsigned long now);
   
-private:
-  void beginCommand(Command *p, unsigned long now);
   /** 
    * iCmd is actually a channel # 
    * to be called from interrupt handler or in response to kb
    */
   void stopCommand(char cCmd);
+
+private:
+  void beginCommand(Command *p, unsigned long now);
   
   /** cmdWaitForCompletion command handler */
   void beginWaitForCompletion();
@@ -230,17 +253,19 @@ private:
   unsigned getBusySeconds(unsigned long now);
   
   /** command currently being executed */
-  Command *m_pCommand;
+  Command *m_pCommand = 0;
   /** Loop command to jump back to when we encounter EndLoop */
-  Command *m_pBeginLoopCommand;
+  Command *m_pBeginLoopCommand = 0;
   /** array of interpreter channels such as slide/pan/tilt/zoom */
   CommandInterpreterChannel *m_channels[cmdMax];
   /** when to execute next command */
-  unsigned long m_ulNext; 
+  unsigned long m_ulNext = 0; 
   /** when the display was last updated */
   unsigned long m_ulLastDisplayUpdate;
-  /** wea re waiting for command(s) to be completed. */
-  boolean m_bWaitingForCompletion;
+  /** when we were paused */
+  unsigned long m_ulPaused = 0;
+  /** we are waiting for command(s) to be completed. */
+  boolean m_bWaitingForCompletion = false;
 };
 
 
