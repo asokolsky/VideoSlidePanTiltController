@@ -7,8 +7,9 @@
  * Original code by shrajtofle@gmail.com.
  * Modified by Alex Sokolsky asokolsky@yahoo.com 4/2015
  */
+#ifndef TB6612FNG_h
+#define TB6612FNG_h
  
-#include <arduino.h>
 #include "Trace.h"
 
 class DCMotor {
@@ -44,4 +45,5 @@ private:
   byte m_speed;
 };
 
+#endif
 

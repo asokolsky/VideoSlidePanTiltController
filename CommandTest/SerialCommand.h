@@ -38,7 +38,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #define SerialCommand_h
 
 #if defined(ARDUINO) && ARDUINO >= 100
-#include "Arduino.h"
+#include <Arduino.h>
 #else
 #include "WProgram.h"
 #endif
@@ -125,5 +125,8 @@ class MySerialCommand : public SerialCommand
   void begin();
 };
 
+extern MySerialCommand g_sci;
+
 
 #endif //SerialCommand_h
+

@@ -1,8 +1,6 @@
 #include "Trace.h"
-#include "Lcd1602KeypadShield.h"
 #include "CommandInterpreter.h"
-
-extern Lcd1602KeypadShield g_lcd;
+#include "Views.h"
 
 /**
  * CommandInterpreter implementation
@@ -63,9 +61,11 @@ void CommandInterpreter::endRun() {
   for(char i = 0; i < sizeof(m_channels)/sizeof(m_channels[0]); i++)
     if(m_channels[i] != 0)
       m_channels[i]->endCommands();
+  /*    
   g_lcd.clear();
   g_lcd.setCursor(0, 0);
   g_lcd.print("Done!");
+  */
 }
 
 /** force stop processing commands */
@@ -78,10 +78,11 @@ void CommandInterpreter::stopRun() {
   for(char i = 0; i < sizeof(m_channels)/sizeof(m_channels[0]); i++)
     if((m_channels[i] != 0) && m_channels[i]->isBusy())
       m_channels[i]->endCommand();
-      
+  /*    
   g_lcd.clear();
   g_lcd.setCursor(0, 0);
   g_lcd.print("Stopped!");
+  */
 }
 
 
@@ -352,7 +353,7 @@ word CommandInterpreter::getBusySeconds(unsigned long now) {
 void CommandInterpreter::updateDisplay(unsigned long now) {
   const char *pLabel = 0;
   word wSecs = 0;
-  char cSelectedChannel = g_lcd.getSelectedChannel();
+  byte cSelectedChannel = g_pView->s_cSelectedChannel;
   if((cmdFirst <= cSelectedChannel) 
     && (cSelectedChannel <= cmdLast) 
     && (m_channels[cSelectedChannel] != 0)) {
@@ -374,7 +375,7 @@ void CommandInterpreter::updateDisplay(unsigned long now) {
     if(wSecs == 0)
       wSecs = getBusySeconds(now);
   }
-  g_lcd.draw(pLabel, 
+  g_pView->draw(pLabel, 
     (m_channels[cmdSlide]!= 0) ? m_channels[cmdSlide]->getCurrentSpeed() : 0, 
     (m_channels[cmdPan]  != 0) ? m_channels[cmdPan]->getCurrentSpeed() : 0, 
     (m_channels[cmdTilt] != 0) ? m_channels[cmdTilt]->getCurrentSpeed() : 0, 

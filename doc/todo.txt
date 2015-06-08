@@ -1,21 +1,24 @@
 
--Add new GUI mode for immediate control of one channel
- left right press and hold - move
- up/down sets the move speed
- The existing GUI is a multiple channel mode
- Switch between modes by press and hold of select
-
 -Add STOPALL or WAITTILENDSWITCH command. 
  Usage scenario: slide left slow, pan left slow, hit endswitch, stop all.
 
 -Test interaction with panner/tilter motors and endswitches
 
 
-Version 0.2
+Version 0.3
 
+-Add new GUI mode for immediate control of one channel
+ left right press and hold - move
+ up/down sets the move speed
+ The existing GUI is a multiple channel mode
+ Switch between modes by press and hold of select
 +Add ability to read commands from a serial port
++Pause/Resume - right when stop channel selected
 +Add slider hardware and software interaction with it
 
+Version 0.2
+
++Documentation
 
 Version 0.1
 

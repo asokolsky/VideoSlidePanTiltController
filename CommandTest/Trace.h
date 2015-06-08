@@ -1,6 +1,11 @@
 /**
  * DEBUG utils
  */
+#ifndef TRACE_h
+#define TRACE_h
+
+#include <arduino.h>
+
 #define DEBUG 1
 
 #ifdef DEBUG
@@ -14,4 +19,6 @@
   #define DEBUG_PRINTHEX(x)
   #define DEBUG_PRINTLN(x)
 #endif 
+
+#endif //TRACE_h
 

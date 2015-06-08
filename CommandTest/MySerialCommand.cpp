@@ -1,10 +1,6 @@
-#include "Arduino.h"
 #include "SerialCommand.h"
 #include "CommandInterpreter.h"
-#include <string.h>
-
-extern MySerialCommand g_sci;
-extern CommandInterpreter g_ci;
+//#include <string.h>
 
 /**
  * execute serial command to move (slide/pan/tilt)
@@ -84,6 +80,7 @@ static void onSerialBeginLoop()
 static void onSerialEndLoop()
 {
 }
+
 /**
  * set serial command handlers
  */
@@ -101,5 +98,6 @@ void MySerialCommand::begin()
   addCommand("PAUSE", onSerialPause);
   addCommand("RESUME", onSerialResume);
 }
+
 
 

@@ -1,3 +1,6 @@
+#ifndef CommandInterpreter_h
+#define CommandInterpreter_h
+
 #include "TB6612FNG.h"
 
 /** 
@@ -268,4 +271,7 @@ private:
   boolean m_bWaitingForCompletion = false;
 };
 
+extern CommandInterpreter g_ci;
+
+#endif
 

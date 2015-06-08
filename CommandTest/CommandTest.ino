@@ -1,26 +1,41 @@
 #include <LiquidCrystal.h>
-#include "Lcd1602KeypadShield.h"
+
+#include "LcdKeypadShield.h"
 #include "CommandInterpreter.h"
 #include "SerialCommand.h"
+#include "Views.h"
 
 
 /**
  * Globals: the LCD screen/keypad  object
  */
-Lcd1602KeypadShield g_lcd;
+LcdKeypadShield g_lcd;
+/**
+ * Globals: views and a pointer to a currently selected one.
+ */
+ChannelsView g_viewChannels;
+ChannelView g_viewChannel;
+char View::s_cSelectedChannel = cmdSlide;
+View *g_pView;
 
 /**
  * Globals: slider end switch counter
  */
 volatile byte g_byteSliderEndSwitch = 0;
 
+/**
+ * Globals: Main command interpreter
+ */
 CommandInterpreter g_ci(
  26, 27, 3, // slider IN1, IN2, PWM
  //26, 27, 2, // slider IN1, IN2, PWM
  22, 23, 11, // pan IN1, IN2, PWM
  24, 25, 12); // tilt IN1, IN2, PWM
 
-Command cmds[] = {
+/**
+ * Globals: commands to run at startup
+ */
+static Command cmds[] = {
 
 //  {cmdRest,  0, 1000},  // rest for 1 sec
 
@@ -47,6 +62,9 @@ Command cmds[] = {
   {cmdNone,  0, 0}
 };
 
+/**
+ * Globals: Serial Port object
+ */
 MySerialCommand g_sci;
 
 static void onSliderEndSwitch()
@@ -61,6 +79,8 @@ void setup()
   while(!Serial) {
     ; // wait for serial port to connect. Needed for Leonardo only
   }
+  
+  g_pView = &g_viewChannels;
   
   // internal pull-up resistor
   //digitalWrite (3, HIGH);
