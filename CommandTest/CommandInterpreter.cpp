@@ -129,7 +129,7 @@ bool CommandInterpreter::continueRun(unsigned long now)
     return false;
   }
   if(isPaused())
-    return false;
+    return true;
   // update the display at least once a sec
   bool bUpdateDisplay = ((now - m_ulLastDisplayUpdate) > 900);
   //
@@ -370,6 +370,9 @@ void CommandInterpreter::updateDisplay(unsigned long now) {
     pLabel = "Wait";
     if(wSecs == 0)
       wSecs = getBusySeconds(now);
+  } else if(isPaused()) {
+    pLabel = "Resu";
+    // if(wSecs == 0) wSecs = getBusySeconds(now);
   } else {
     pLabel = "Stop";
     if(wSecs == 0)

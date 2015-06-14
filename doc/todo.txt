@@ -1,13 +1,29 @@
+-Connect RFM69W 915Mhz radio
+ Solder header pins to Anarduino
+ Solder header pins to LCD
+ Breadboard+Anarduino+LCD
+ Solder RFM69W, header pins to breadboard
 
--Add STOPALL or WAITTILENDSWITCH command. 
+-Migrate to a 3V controller, e.g. Arduino Due, in preparation for a 3V radio.
+ Also high current power supply does not hurt.
+
+-Replace LCD/keyboard shield with a separate 
+ 20x4 or 16x2 LCD and a keyboard on A0
+
+
+-Add StopAll or WaitTilEndSwitch command. 
  Usage scenario: slide left slow, pan left slow, hit endswitch, stop all.
 
--Test interaction with panner/tilter motors and endswitches
+-Test interaction with panner/tilter motors 
+
+-Test pan endswitches - failed for now - can't figure out how these work.
+
+-Terminate motor wires in the Pan/Tilt head
 
 
 Version 0.3
 
--Add new GUI mode for immediate control of one channel
++Add new GUI mode for immediate control of one channel
  left right press and hold - move
  up/down sets the move speed
  The existing GUI is a multiple channel mode

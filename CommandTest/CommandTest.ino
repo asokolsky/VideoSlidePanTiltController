@@ -116,6 +116,7 @@ void loop()
   } else if(g_sci.available()) {
     do {
       g_sci.readAndDispatch();
+      g_ci.updateDisplay(now);
     } while(g_sci.available());
   }
   delay(50);
