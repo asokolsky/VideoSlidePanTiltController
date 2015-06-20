@@ -8,8 +8,20 @@ Slide  Pan  Tilt
  + 1   -.5   -.3
 
 12345678901234567890
-Sli Pan Tlt Zoom
-+ 1 -.5 -.3   0
+Sli Pan Tlt Stop
++ 1 -.5 -.3    0
+
+12345678901234567890
+ Slide Pan Tilt Stop
+   + 1 -.5  -.3    0
+ <> - speed
+ /\ - duration
+
+12345678901234567890
+ Slide Pan Tilt Stop
+   + 1 -.5  -.3    0
+ <> - speed
+ /\ - duration
 
 12345678901234567890
 Slide        < >

@@ -1,15 +1,9 @@
--Connect RFM69W 915Mhz radio
- Solder header pins to Anarduino
- Solder header pins to LCD
- Breadboard+Anarduino+LCD
- Solder RFM69W, header pins to breadboard
+-Controller: Connect RFM69W 915Mhz radio
+ Can't do it to Mega because of 5V logic!
+ Solder Radio and pins to breakout board
 
--Migrate to a 3V controller, e.g. Arduino Due, in preparation for a 3V radio.
+-Controller: Migrate to a 3V Arduino Due in preparation for a 3V radio.
  Also high current power supply does not hurt.
-
--Replace LCD/keyboard shield with a separate 
- 20x4 or 16x2 LCD and a keyboard on A0
-
 
 -Add StopAll or WaitTilEndSwitch command. 
  Usage scenario: slide left slow, pan left slow, hit endswitch, stop all.
@@ -18,7 +12,30 @@
 
 -Test pan endswitches - failed for now - can't figure out how these work.
 
--Terminate motor wires in the Pan/Tilt head
+-Terminate motor wires in the Pan/Tilt head to an RJ45 jack
+
+-Controller:
+ Evaluate compression when sending content of the LCD screen to remote.
+ Algorithms good for short text strings with custom dictionary:
+
+Version 0.4
+
++Controller: Free pins for radio
+ Pin changes: 
+   Move endswitch - from D2 to D3
+   Move slide motor PWMA to D4
+   Move pan motor PWMA to D5
+   Move tilt motor PWMB to D6
++Controller: Replace an LCD/keyboard shield with a 
+ separate 20x4 or 16x2 LCD - solder header pins
+ and a keyboard on A0
+ Pin changes: LCD is now on D33-28 - source change required!
+ Draw Fritzing diagram
+
++Remote: 
+ Assemble and test Breadboard+Anarduino+LCD
+ Draw Fritzing diagram - conflict with D5 Anarduino internal use?
+ Start development of the "Remote Access" code
 
 
 Version 0.3
@@ -50,4 +67,5 @@ Version 0.1
 +Handle interrupts to process carriage hitting endswitches
 +GUI: show remaining time for the selected command, not the very first one.
 +GUI: when an active channel is selected Left/Right adjusts speed, Up/Down time
-+Build a menu to choose channel to interact with, handle start/stop/ speedChange on every channel
++Build a menu to choose channel to interact with, 
+ handle start/stop/ speedChange on every channel

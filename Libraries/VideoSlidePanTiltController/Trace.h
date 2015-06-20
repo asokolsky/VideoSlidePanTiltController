@@ -4,8 +4,6 @@
 #ifndef TRACE_h
 #define TRACE_h
 
-#include <arduino.h>
-
 #define DEBUG 1
 
 #ifdef DEBUG

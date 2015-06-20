@@ -3,6 +3,20 @@ No timelapse functionality supported.
 Slide is provided by a DIY slider (IGUS hardware?) with DC motor.
 Pan/Tilt is provided by a modified Bescor MP-101 head.
 
+Controller - controls directly the motors, talks to remote, 
+    has user interface - keypad and display.  Sources are here.
+
+Doc - original as well as 3rd party documentation for the project and 
+    its components
+
+Libraries - original components reused by Controller and Remote.  
+    3rd-party libraries used: 
+      RadioHead - 
+      LiquidCrystal - comes with Arduino IDE
+
+Remote - offers user interface (display and keaypad) and talks to controller
+    over the radio.
+
 Read http://alexsokolsky.blogspot.com/p/video-slider-10.html for motivation.
 
 Read doc/todo.txt for Version/release/issue history

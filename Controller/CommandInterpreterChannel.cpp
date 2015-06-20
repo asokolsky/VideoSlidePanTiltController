@@ -1,5 +1,5 @@
-#include "Trace.h"
-#include "CommandInterpreter.h"
+#include <VideoSlidePanTiltController.h>
+#include "ControllerCommandInterpreter.h"
 
 extern volatile byte g_byteSliderEndSwitch;
 

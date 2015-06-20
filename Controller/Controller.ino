@@ -1,15 +1,13 @@
 #include <LiquidCrystal.h>
-
-#include "LcdKeypadShield.h"
-#include "CommandInterpreter.h"
-#include "SerialCommand.h"
-#include "Views.h"
+#include <VideoSlidePanTiltController.h>
+#include "ControllerCommandInterpreter.h"
 
 
 /**
  * Globals: the LCD screen/keypad  object
  */
-LcdKeypadShield g_lcd;
+LiquidCrystal g_lcd(33, 32, 31, 30, 29, 28);
+Keypad g_kpad(0);
 /**
  * Globals: views and a pointer to a currently selected one.
  */
@@ -26,12 +24,11 @@ volatile byte g_byteSliderEndSwitch = 0;
 /**
  * Globals: Main command interpreter
  */
-CommandInterpreter g_ci(
- 26, 27, 3, // slider IN1, IN2, PWM
- //26, 27, 2, // slider IN1, IN2, PWM
- 22, 23, 11, // pan IN1, IN2, PWM
- 24, 25, 12); // tilt IN1, IN2, PWM
-
+static ControllerCommandInterpreter g_ci(
+ 26, 27, 4,  // slider IN1, IN2, PWM pins
+ 22, 23, 5,  // pan IN1, IN2, PWM pins
+ 24, 25, 6); // tilt IN1, IN2, PWM pins
+CommandInterpreter *g_pCommandInterpreter = &g_ci;
 /**
  * Globals: commands to run at startup
  */
@@ -82,16 +79,24 @@ void setup()
   
   g_pView = &g_viewChannels;
   
-  // internal pull-up resistor
-  //digitalWrite (3, HIGH);
-  digitalWrite (2, HIGH);
   // interrupt 1 is on pin 3
-  //attachInterrupt(1, onSliderEndSwitch, FALLING);
-  // interrupt 0 is on pin 3
-  attachInterrupt(0, onSliderEndSwitch, FALLING);
+  digitalWrite (3, HIGH);   // INT1
+  attachInterrupt(1, onSliderEndSwitch, FALLING);
+
+  // interrupt 0 is on pin 2
+  //digitalWrite (2, HIGH); // INT0
+  //attachInterrupt(0, onSliderEndSwitch, FALLING);
 
   g_sci.begin();
-  g_lcd.begin();
+
+  //
+  g_lcd.begin(20, 4);
+  g_lcd.cursor();
+  //g_lcd.blink();
+  ScreenBuffer sb;
+  sb.begin(&g_lcd);
+  
+  //
   g_ci.begin();
   g_ci.beginRun(cmds);
 }
@@ -111,7 +116,7 @@ void loop()
       g_ci.endRun();
     }
   }
-  if(g_lcd.getAndDispatchKey(now)) {
+  if(g_kpad.getAndDispatchKey(now)) {
     ;
   } else if(g_sci.available()) {
     do {

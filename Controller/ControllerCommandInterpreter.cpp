@@ -1,11 +1,14 @@
-#include "Trace.h"
-#include "CommandInterpreter.h"
-#include "Views.h"
+#include <LiquidCrystal.h>
+#include <VideoSlidePanTiltController.h>
+#include "ControllerCommandInterpreter.h"
+
+extern LiquidCrystal g_lcd;
+
 
 /**
  * CommandInterpreter implementation
  */
-CommandInterpreter::CommandInterpreter(
+ControllerCommandInterpreter::ControllerCommandInterpreter(
   byte pinSlideCW, byte pinSlideCCW, byte pinSlidePWM,
   byte pinPanCW, byte pinPanCCW, byte pinPanPWM,
   byte pinTiltCW, byte pinTiltCCW, byte pinTiltPWM)
@@ -18,7 +21,7 @@ CommandInterpreter::CommandInterpreter(
 /** 
  * external APIs 
  */
-void CommandInterpreter::begin() {
+void ControllerCommandInterpreter::begin() {
   // begin for all channels.....
   for(char i = 0; i < sizeof(m_channels)/sizeof(m_channels[0]); i++)
     if(m_channels[i] != 0)
@@ -33,7 +36,7 @@ static Command cmds[] = {
   {cmdNone,  0, 0}
 };
 
-void CommandInterpreter::beginRun(char cmd, char cSpeed, unsigned long ulDuration) {
+void ControllerCommandInterpreter::beginRun(char cmd, char cSpeed, unsigned long ulDuration) {
   DEBUG_PRINTLN("CommandInterpreter::beginRun");
   cmds[0].m_command = cmd;
   cmds[0].m_speed = cSpeed;
@@ -41,7 +44,7 @@ void CommandInterpreter::beginRun(char cmd, char cSpeed, unsigned long ulDuratio
   beginRun(cmds);
 }
 
-void CommandInterpreter::beginRun(Command *p) {
+void ControllerCommandInterpreter::beginRun(Command *p) {
   DEBUG_PRINTLN("CommandInterpreter::beginRun");
   // beginCommands for all channels.....
   for(char i = 0; i < sizeof(m_channels)/sizeof(m_channels[0]); i++)
@@ -52,7 +55,7 @@ void CommandInterpreter::beginRun(Command *p) {
   beginCommand(p, millis());
 }
 
-void CommandInterpreter::endRun() {
+void ControllerCommandInterpreter::endRun() {
   DEBUG_PRINTLN("CommandInterpreter::endRun");
   m_bWaitingForCompletion = false;
   m_pCommand = 0;
@@ -69,7 +72,7 @@ void CommandInterpreter::endRun() {
 }
 
 /** force stop processing commands */
-void CommandInterpreter::stopRun() {
+void ControllerCommandInterpreter::stopRun() {
   DEBUG_PRINTLN("CommandInterpreter::stopRun");
   m_bWaitingForCompletion = false;
   m_pCommand = 0;
@@ -87,7 +90,7 @@ void CommandInterpreter::stopRun() {
 
 
 /** suspend the run, can resume */
-void CommandInterpreter::pauseRun() {
+void ControllerCommandInterpreter::pauseRun() {
   if(m_ulPaused != 0)
     return;
   m_ulPaused = millis();
@@ -98,7 +101,7 @@ void CommandInterpreter::pauseRun() {
 }
 
 /** resume the run */
-void CommandInterpreter::resumeRun() {
+void ControllerCommandInterpreter::resumeRun() {
   if(m_ulPaused == 0)
     return;
   unsigned long now = millis();
@@ -117,7 +120,7 @@ void CommandInterpreter::resumeRun() {
  * return true to continue running
  * return false to end the run
  */
-bool CommandInterpreter::continueRun(unsigned long now) 
+bool ControllerCommandInterpreter::continueRun(unsigned long now) 
 {
 /**
   DEBUG_PRINT("CommandInterpreter::continueRun now=");
@@ -175,7 +178,7 @@ bool CommandInterpreter::continueRun(unsigned long now)
   return true;
 }
 
-boolean CommandInterpreter::isBusy(char cChannel) {
+boolean ControllerCommandInterpreter::isBusy(char cChannel) {
   if(!isRunning())
     return false;
   return (0 <= cChannel) 
@@ -185,7 +188,7 @@ boolean CommandInterpreter::isBusy(char cChannel) {
 }
 
 /** get the # of channels running command */
-char CommandInterpreter::getBusyChannels() {
+char ControllerCommandInterpreter::getBusyChannels() {
   char iRes = 0;
   for(char i = 0; i < sizeof(m_channels)/sizeof(m_channels[0]); i++)
     if((m_channels[i] != 0) && (m_channels[i]->isBusy()))
@@ -198,7 +201,7 @@ char CommandInterpreter::getBusyChannels() {
  * execute the command pointed to by p
  * side effect - may change m_pCommand 
  */
-void CommandInterpreter::beginCommand(Command *p, unsigned long now) {
+void ControllerCommandInterpreter::beginCommand(Command *p, unsigned long now) {
   //DEBUG_PRINTLN("CommandInterpreter::beginCommand");
   
   for(bool bContinue = true; bContinue;) 
@@ -242,26 +245,26 @@ void CommandInterpreter::beginCommand(Command *p, unsigned long now) {
   updateDisplay(now);
 }
 
-void CommandInterpreter::beginWaitForCompletion() {
+void ControllerCommandInterpreter::beginWaitForCompletion() {
   DEBUG_PRINTLN("CommandInterpreter::beginWaitForCompletion");
   m_bWaitingForCompletion = true;
 }
-void CommandInterpreter::endWaitForCompletion() {
+void ControllerCommandInterpreter::endWaitForCompletion() {
   DEBUG_PRINTLN("CommandInterpreter::endWaitForCompletion");
   m_bWaitingForCompletion = false;
 }
 
-void CommandInterpreter::beginRest(unsigned long ulDuration, unsigned long now) {
+void ControllerCommandInterpreter::beginRest(unsigned long ulDuration, unsigned long now) {
   DEBUG_PRINT("CommandInterpreter::beginRest ulDuration=");
   DEBUG_PRINTDEC(ulDuration);
   DEBUG_PRINTLN("");
   m_ulNext = now + ulDuration;
 }
-void CommandInterpreter::endRest() {
+void ControllerCommandInterpreter::endRest() {
   DEBUG_PRINTLN("CommandInterpreter::endRest()");
   m_ulNext = 0;
 }
-void CommandInterpreter::beginLoop(Command *p) {
+void ControllerCommandInterpreter::beginLoop(Command *p) {
   DEBUG_PRINT("CommandInterpreter::beginLoop p=0x");
   DEBUG_PRINTHEX((unsigned)p);
   DEBUG_PRINT(", p->m_command=");
@@ -270,7 +273,8 @@ void CommandInterpreter::beginLoop(Command *p) {
   // the following is necessary because
   m_pBeginLoopCommand = p;
 }
-Command *CommandInterpreter::endLoop() {
+
+Command *ControllerCommandInterpreter::endLoop() {
   Command *p = m_pBeginLoopCommand;
   m_pBeginLoopCommand = 0;
   DEBUG_PRINT("CommandInterpreter::endLoop p=0x");
@@ -285,7 +289,7 @@ Command *CommandInterpreter::endLoop() {
 /** 
  * External API 
  */
-void CommandInterpreter::beginCommand(char cmd, char cSpeed, unsigned long ulDuration) {
+void ControllerCommandInterpreter::beginCommand(char cmd, char cSpeed, unsigned long ulDuration) {
   DEBUG_PRINTLN("CommandInterpreter::beginCommand");
   cmds[0].m_command = cmd;
   cmds[0].m_speed = cSpeed;
@@ -293,7 +297,7 @@ void CommandInterpreter::beginCommand(char cmd, char cSpeed, unsigned long ulDur
   beginCommand(cmds, millis());
 }
 
-void CommandInterpreter::adjustCommandSpeed(char iCmd, char iSpeed) {
+void ControllerCommandInterpreter::adjustCommandSpeed(char iCmd, char iSpeed) {
   DEBUG_PRINTLN("CommandInterpreter::adjustCommandSpeed");
   switch(iCmd) {
     case cmdSlide:
@@ -305,7 +309,7 @@ void CommandInterpreter::adjustCommandSpeed(char iCmd, char iSpeed) {
   }
 }
 
-void CommandInterpreter::adjustCommandDuration(char iCmd, int iSecs) {
+void ControllerCommandInterpreter::adjustCommandDuration(char iCmd, int iSecs) {
   DEBUG_PRINTLN("CommandInterpreter::adjustCommandDuration");
   switch(iCmd) {
     case cmdRest:
@@ -325,7 +329,7 @@ void CommandInterpreter::adjustCommandDuration(char iCmd, int iSecs) {
  * iCmd is actually a channel # 
  * to be called from interrupt handler or in response to kb
  */
-void CommandInterpreter::stopCommand(char iCmd) {
+void ControllerCommandInterpreter::stopCommand(char iCmd) {
   if(iCmd < 0 || iCmd > sizeof(m_channels)/sizeof(m_channels[0]))
     return;
   if(m_channels[iCmd] == 0)
@@ -336,7 +340,7 @@ void CommandInterpreter::stopCommand(char iCmd) {
 /** 
  * find out for how long the first busy channel will be busy
  */
-word CommandInterpreter::getBusySeconds(unsigned long now) {
+word ControllerCommandInterpreter::getBusySeconds(unsigned long now) {
   word wSecsRes = 0;
   for(char i = 0; i < sizeof(m_channels)/sizeof(m_channels[0]); i++)
     if((m_channels[i] != 0) && m_channels[i]->isBusy()) {
@@ -350,7 +354,7 @@ word CommandInterpreter::getBusySeconds(unsigned long now) {
   return wSecsRes;
 }
 
-void CommandInterpreter::updateDisplay(unsigned long now) {
+void ControllerCommandInterpreter::updateDisplay(unsigned long now) {
   const char *pLabel = 0;
   word wSecs = 0;
   byte cSelectedChannel = g_pView->s_cSelectedChannel;
@@ -378,11 +382,16 @@ void CommandInterpreter::updateDisplay(unsigned long now) {
     if(wSecs == 0)
       wSecs = getBusySeconds(now);
   }
+  ScreenBuffer sb;
   g_pView->draw(pLabel, 
-    (m_channels[cmdSlide]!= 0) ? m_channels[cmdSlide]->getCurrentSpeed() : 0, 
-    (m_channels[cmdPan]  != 0) ? m_channels[cmdPan]->getCurrentSpeed() : 0, 
-    (m_channels[cmdTilt] != 0) ? m_channels[cmdTilt]->getCurrentSpeed() : 0, 
-    wSecs);
+    m_channels[cmdSlide]->getCurrentSpeed(), 
+    m_channels[cmdPan]->getCurrentSpeed(), 
+    m_channels[cmdTilt]->getCurrentSpeed(), 
+    wSecs,
+    &sb);
+  sb.draw(&g_lcd);
+  // send it to remote over the network here...
+
   m_ulLastDisplayUpdate = now; 
 }
 

@@ -1,3 +1,4 @@
+#include <VideoSlidePanTiltController.h>
 #include "TB6612FNG.h"
 
 void DCMotor::begin() {

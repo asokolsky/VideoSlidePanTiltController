@@ -1,19 +1,19 @@
+#include <VideoSlidePanTiltController.h>
 #include "SerialCommand.h"
-#include "CommandInterpreter.h"
-//#include <string.h>
+#include "ControllerCommandInterpreter.h"
 
 /**
  * execute serial command to move (slide/pan/tilt)
  */
 static void onSerialMoveCommand(char iCmd, char iSpeed, unsigned uDurationSecs) {
-  if(g_ci.isRunning()) {
-    if(g_ci.isBusy(iCmd))
-      g_ci.stopCommand(iCmd);
+  if(g_pCommandInterpreter->isRunning()) {
+    if(g_pCommandInterpreter->isBusy(iCmd))
+      g_pCommandInterpreter->stopCommand(iCmd);
     if((iSpeed != 0) && (uDurationSecs > 0))
-      g_ci.beginCommand(iCmd, iSpeed, uDurationSecs*1000L);
+      g_pCommandInterpreter->beginCommand(iCmd, iSpeed, uDurationSecs*1000L);
   } else {
     if((iSpeed != 0) && (uDurationSecs > 0))
-      g_ci.beginRun(iCmd, iSpeed, uDurationSecs*1000L);
+      g_pCommandInterpreter->beginRun(iCmd, iSpeed, uDurationSecs*1000L);
   }
 }
 
@@ -55,18 +55,18 @@ static void onSerialTilt()
  */
 static void onSerialHalt()
 {
-  if(g_ci.isRunning())
-    g_ci.stopRun();
+  if(g_pCommandInterpreter->isRunning())
+    g_pCommandInterpreter->stopRun();
 }
 static void onSerialPause()
 {
-  if(g_ci.isRunning())
-    g_ci.pauseRun();
+  if(g_pCommandInterpreter->isRunning())
+    g_pCommandInterpreter->pauseRun();
 }
 static void onSerialResume()
 {
-  if(g_ci.isRunning() && g_ci.isPaused())
-    g_ci.resumeRun();
+  if(g_pCommandInterpreter->isRunning() && g_pCommandInterpreter->isPaused())
+    g_pCommandInterpreter->resumeRun();
 }
 static void onSerialWaitForCompletion()
 {

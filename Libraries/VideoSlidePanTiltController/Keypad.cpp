@@ -1,26 +1,31 @@
-#include "LcdKeypadShield.h"
+#include "Keypad.h"
 #include "Trace.h"
 #include "Views.h"
 
 /**
  * get one of VK_xxx
  */
-byte LcdKeypadShield::getKey()
+byte Keypad::getKey()
 {
-  int adc_key_in = analogRead(0);      // read the value from the sensor 
+  int adc_key_in = analogRead(m_bPin);      // read the value from the sensor 
   // buttons when read are centered at these valies: 0, 144, 329, 504, 741
   // we add approx 50 to those values and check to see if we are close
-  if (adc_key_in > 1000) return VK_NONE; // We make this the 1st option for speed reasons since it will be the most likely result
+
+  // 1st option for speed reasons since it will be the most likely result
+  if (adc_key_in > 850) return VK_NONE; 
   // For V1.1
   if (adc_key_in < 50)   return VK_RIGHT;  
-  if (adc_key_in < 250)  return VK_UP; 
-  if (adc_key_in < 450)  return VK_DOWN; 
-  if (adc_key_in < 650)  return VK_LEFT; 
-  if (adc_key_in < 850)  return VK_SEL;
-  return VK_NONE;
+//  if (adc_key_in < 250)  return VK_UP; 
+  if (adc_key_in < 250)  return VK_DOWN;
+  //if (adc_key_in < 450)  return VK_DOWN; 
+  if (adc_key_in < 450)  return VK_UP;
+  if (adc_key_in < 650)  return VK_LEFT;
+  //if (adc_key_in < 850)  
+    return VK_SEL;
+  //return VK_NONE;
 }
 
-boolean LcdKeypadShield::getAndDispatchKey(unsigned long ulNow)
+boolean Keypad::getAndDispatchKey(unsigned long ulNow)
 {
   byte vk = getKey();
   if(vk == m_cOldKey) { 

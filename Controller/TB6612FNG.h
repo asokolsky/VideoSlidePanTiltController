@@ -10,8 +10,6 @@
 #ifndef TB6612FNG_h
 #define TB6612FNG_h
  
-#include "Trace.h"
-
 class DCMotor {
 
 public:
